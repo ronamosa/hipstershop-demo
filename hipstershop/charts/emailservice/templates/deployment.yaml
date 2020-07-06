@@ -33,8 +33,8 @@ spec:
           env:
           - name: PORT
             value: "8080"
-          - name: ENABLE_PROFILER
-            value: "0"
+          - name: DISABLE_PROFILER
+            value: "1"
           readinessProbe:
             periodSeconds: 5
             exec:
