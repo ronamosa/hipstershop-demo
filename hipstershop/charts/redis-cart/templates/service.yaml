@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "redis-cart.name" . }}
+  labels:
+    {{- include "redis-cart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      name: redis
+  selector:
+    {{- include "redis-cart.selectorLabels" . | nindent 4 }}

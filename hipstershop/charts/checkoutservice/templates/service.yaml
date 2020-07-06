@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "checkoutservice.name" . }}
+  labels:
+    {{- include "checkoutservice.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 5050
+      name: grpc
+  selector:
+    {{- include "checkoutservice.selectorLabels" . | nindent 4 }}
