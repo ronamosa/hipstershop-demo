@@ -9,6 +9,9 @@ image:
   tag: 0.2.0
   pullPolicy: IfNotPresent
 
+containers:
+  name: "server"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -18,7 +21,7 @@ serviceAccount:
   create: true
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name:
+  name: "paymentservice"
 
 podSecurityContext: {}
   # fsGroup: 2000
