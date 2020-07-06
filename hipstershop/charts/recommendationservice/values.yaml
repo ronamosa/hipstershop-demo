@@ -6,9 +6,12 @@ replicaCount: 1
 
 image:
   repository: gcr.io/google-samples/microservices-demo/recommendationservice
-  tag: 0.1.3
+  tag: 0.2.0
   pullPolicy: IfNotPresent
 
+containers:
+  name: "server"
+  
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
