@@ -9,6 +9,9 @@ image:
   tag: alpine
   pullPolicy: IfNotPresent
 
+containers:
+  name: "redis"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -36,6 +39,7 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 6379
+  targetPort: 6379
 
 ingress:
   enabled: false
