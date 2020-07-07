@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "adservice.name" . }}
+  labels:
+    {{- include "adservice.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: 
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 9555
+      name: grpc
+  selector:
+    {{- include "adservice.selectorLabels" . | nindent 4 }}
