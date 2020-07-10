@@ -25,7 +25,7 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
   * [Usage](#usage)
-  * [Un-Installation](#uninstallation)
+  * [Un-Installation](#un-installation)
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -71,14 +71,14 @@ microk8s.helm3 install --debug --dryrun hipstershop helm/
 Now, deploy it
 
 ```sh
-microk8s.helm3 install --debug hipstershop helm/* [Usage](#usage)
-* [Roadmap](#roadmap)en `http://frontend-ip`.
+microk8s.helm3 install --debug hipstershop helm/
+```
 
 Secondly you can make the hipster store accessible from your LAN using your local machines LAN IP.
 
 To do this you need to patch the LoadBalancer service `frontend-external`
 
-### patch `frontend-external`
+### patch 'frontend-external'
 
 If you want to expose your shop deployment to your LAN (the network your PC is on) use the following command to patch the `frontend-external` service to your machines IP address
 
@@ -113,24 +113,23 @@ check out your k8s services again
 
 ```sh
 $ microk8s.kubectl get svc
-
 NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
-adservice               ClusterIP      10.152.183.183   <none>         9555/TCP       3h30m
-cartservice             ClusterIP      10.152.183.238   <none>         7070/TCP       3h30m
-checkoutservice         ClusterIP      10.152.183.124   <none>         5050/TCP       3h30m
-currencyservice         ClusterIP      10.152.183.247   <none>         7000/TCP       3h30m
-emailservice            ClusterIP      10.152.183.90    <none>         5000/TCP       3h30m
-frontend                ClusterIP      10.152.183.13    <none>         80/TCP         3h30m
-frontend-external       LoadBalancer   10.152.183.172   192.168.1.11   80:30829/TCP   3h30m
+adservice               ClusterIP      10.152.183.183   <none>         9555/TCP       6h45m
+cartservice             ClusterIP      10.152.183.238   <none>         7070/TCP       6h45m
+checkoutservice         ClusterIP      10.152.183.124   <none>         5050/TCP       6h45m
+currencyservice         ClusterIP      10.152.183.247   <none>         7000/TCP       6h45m
+emailservice            ClusterIP      10.152.183.90    <none>         5000/TCP       6h45m
+frontend                ClusterIP      10.152.183.13    <none>         80/TCP         6h45m
+frontend-external       LoadBalancer   10.152.183.172   192.168.1.11   80:30829/TCP   6h45m
 kubernetes              ClusterIP      10.152.183.1     <none>         443/TCP        11d
-paymentservice          ClusterIP      10.152.183.207   <none>         50051/TCP      3h30m
-productcatalogservice   ClusterIP      10.152.183.22    <none>         3550/TCP       3h30m
-recommendationservice   ClusterIP      10.152.183.165   <none>         8080/TCP       3h30m
-redis-cart              ClusterIP      10.152.183.8     <none>         6379/TCP       3h30m
-shippingservice         ClusterIP      10.152.183.46    <none>         50051/TCP      3h30m
+paymentservice          ClusterIP      10.152.183.207   <none>         50051/TCP      6h45m
+productcatalogservice   ClusterIP      10.152.183.22    <none>         3550/TCP       6h45m
+recommendationservice   ClusterIP      10.152.183.165   <none>         8080/TCP       6h45m
+redis-cart              ClusterIP      10.152.183.8     <none>         6379/TCP       6h45m
+shippingservice         ClusterIP      10.152.183.46    <none>         50051/TCP      6h45m
 ```
 
-open `http://192.168.1.11:30829` and you will see the hipster shop.
+Now, open `http://192.168.1.11:30829` and you will see the hipster shop.
 
 ### Usage
 
@@ -150,12 +149,12 @@ microk8s.helm3 upgrade --install --debug hipstershop helm/
 
 ### StackDriver errors
 
-If you see the recommendationservice pod 'CrashLooping', check the logs and if they are talking about `GOOGLE_APPLICATION_CREDENTIALS` being missing you have two choices:
+If you see the recommendationservice pod 'CrashLooping', check the logs and if they are talking about `'GOOGLE_APPLICATION_CREDENTIALS'` being missing you have two choices:
 
-1. Get your creds from your GCP account, save them as a .json file, and then run `export GOOGLE_APPLICATION_CREDENTIALS=/path/to/json/file`, and now your stackdriver should be ok.
+1. Get your creds from your GCP account, save them as a .json file, and then run `'export GOOGLE_APPLICATION_CREDENTIALS=/path/to/json/file'`, and now your stackdriver should be ok.
 2. Disable the functions in the microservice that needs stackdriver
 
-make sure your `recommendationservice/templates/deployment.yaml` has these uncommented
+make sure your `'recommendationservice/templates/deployment.yaml'` has these uncommented
 
 ```yaml
   - name: DISABLE_TRACING
@@ -174,92 +173,7 @@ Uninstallation is really easy with helm, run this command and watch (only if you
 microk8s.helm3 delete hipstershop
 ```
 
-<!-- LICENSE -->
-
-helm chart of [Googles microservices demo](https://github.com/GoogleCloudPlatform/microservices-demo)
-
-## local k8s: disable options
-
-if you don't have a GCP account with stackdriver available, disable these in `recommendationservice/templates/deployment.yaml`
-
-```yaml
-  - name: DISABLE_TRACING
-    value: "1"
-  - name: DISABLE_PROFILER
-    value: "1"
-  - name: DISABLE_DEBUGGER
-    value: "1"
-```
-
-## stackdriver google authentication
-
-set this in your env vars before deploying, affects recommendation service:
-
-`export GOOGLE_APPLICATION_CREDENTIALS="[PATH]"`
-
-## helm deploy
-
-### dry run (test)
-
-`microk8s.helm3 install --debug --dry-run hipstershop helm/`
-
-### deploy
-
-`microk8s.helm3 install --debug hipstershop helm/`
-
-## patch frontend-external
-
-If you want to expose your shop deployment to your LAN (the network your PC is on) use the following command to patch the `frontend-external` service to your machines IP address
-
-`kubectl patch svc frontend-external -n hipster-shop -p '{"spec": {"type": "LoadBalancer", "externalIPs":["<ip-address of masternode>"]}}'`
-
-for example, have look at your k8s services
-
-```sh
-$ microk8s.kubectl get svc
-
-NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-adservice               ClusterIP      10.152.183.183   <none>        9555/TCP       3h26m
-cartservice             ClusterIP      10.152.183.238   <none>        7070/TCP       3h26m
-checkoutservice         ClusterIP      10.152.183.124   <none>        5050/TCP       3h26m
-currencyservice         ClusterIP      10.152.183.247   <none>        7000/TCP       3h26m
-emailservice            ClusterIP      10.152.183.90    <none>        5000/TCP       3h26m
-frontend                ClusterIP      10.152.183.13    <none>        80/TCP         3h26m
-frontend-external       LoadBalancer   10.152.183.172   <pending>     80:30829/TCP   3h26m
-kubernetes              ClusterIP      10.152.183.1     <none>        443/TCP        11d
-paymentservice          ClusterIP      10.152.183.207   <none>        50051/TCP      3h26m
-productcatalogservice   ClusterIP      10.152.183.22    <none>        3550/TCP       3h26m
-recommendationservice   ClusterIP      10.152.183.165   <none>        8080/TCP       3h26m
-redis-cart              ClusterIP      10.152.183.8     <none>        6379/TCP       3h26m
-shippingservice         ClusterIP      10.152.183.46    <none>        50051/TCP      3h26m
-```
-
-get your computers IP address (e.g. 192.168.1.11)
-
-run the patch: `microk8s.kubectl patch svc frontend-external -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.1.11"]}}'`
-
-check out your k8s services again
-
-```sh
-$ microk8s.kubectl get svc
-
-NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)        AGE
-adservice               ClusterIP      10.152.183.183   <none>         9555/TCP       3h30m
-cartservice             ClusterIP      10.152.183.238   <none>         7070/TCP       3h30m
-checkoutservice         ClusterIP      10.152.183.124   <none>         5050/TCP       3h30m
-currencyservice         ClusterIP      10.152.183.247   <none>         7000/TCP       3h30m
-emailservice            ClusterIP      10.152.183.90    <none>         5000/TCP       3h30m
-frontend                ClusterIP      10.152.183.13    <none>         80/TCP         3h30m
-frontend-external       LoadBalancer   10.152.183.172   192.168.1.11   80:30829/TCP   3h30m
-kubernetes              ClusterIP      10.152.183.1     <none>         443/TCP        11d
-paymentservice          ClusterIP      10.152.183.207   <none>         50051/TCP      3h30m
-productcatalogservice   ClusterIP      10.152.183.22    <none>         3550/TCP       3h30m
-recommendationservice   ClusterIP      10.152.183.165   <none>         8080/TCP       3h30m
-redis-cart              ClusterIP      10.152.183.8     <none>         6379/TCP       3h30m
-shippingservice         ClusterIP      10.152.183.46    <none>         50051/TCP      3h30m
-```
-
-open `http://192.168.1.11:30829` and you will see the hipster shop.
+## Contact
 
 Ron Amosa - [@iamronamosa](https://twitter.com/iamronamosa) - ron@cloudbuilder.io
 
