@@ -190,5 +190,4 @@ Ron Amosa - [@iamronamosa](https://twitter.com/iamronamosa) - ron@cloudbuilder.i
 [license-shield]: https://img.shields.io/github/license/ronamosa/hipstershop-demo.svg?style=flat-square
 [license-url]: https://github.com/ronamosa/hipstershop-demo/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/ronamosa
-[product-screenshot]: images/screenshot.png
+[linkedin-url]: https://linkedin.com/in/ron-amosa
