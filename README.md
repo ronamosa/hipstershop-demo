@@ -22,9 +22,9 @@
 * [About the Project](#about-the-project)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-  * [Usage](#usage)
-  * [Un-Installation](#un-installation)
+* [Installation](#installation)
+  * [Istio-enabled](#Istio-enabled)
+* [Un-Install](#un-installation)
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -38,7 +38,7 @@ Get yourself a copy of the repo: [git@github.com:ronamosa/hipstershop-demo.git](
 
 ### Prerequisites
 
-#### local setup: microK8s
+#### Local setup: microK8s
 
 Ubuntu:
 
@@ -47,24 +47,26 @@ sudo snap install microk8s --classic
 microk8s.status
 ```
 
-enable services: helm3, istio service mesh, k8s dashboard
+enable helm version 3
 
 ```sh
-microk8s.enable helm3 istio dashboard
+microk8s.enable helm3
 ```
 
-#### remote setup: cloud
+#### Remote setup: cloud
 
 TBC
 
-### Installation
+## Installation
+
+### Non-Istio
 
 Do a dry-run first before you deploy to make sure the charts are happy.
 
 The cli convention here is: `helm-command 'install|upgrade --install' '--debug --dry-run' <helm release name> <chart-folder>`
 
 ```sh
-microk8s.helm3 install --debug --dryrun hipstershop helm/
+microk8s.helm3 install --debug --dry-run hipstershop helm/
 ```
 
 Now, deploy it
@@ -73,11 +75,109 @@ Now, deploy it
 microk8s.helm3 install --debug hipstershop helm/
 ```
 
-Secondly you can make the hipster store accessible from your LAN using your local machines LAN IP.
+Check the release
 
-To do this you need to patch the LoadBalancer service `frontend-external`
+```sh
+microk8s.helm3 list
+NAME       	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART            	APP VERSION
+hipstershop	default  	1       	2020-07-15 19:25:45.695583276 +1200 NZST	deployed	hipstershop-0.1.0	1.16.0     
+```
 
-### patch 'frontend-external'
+### Istio-enabled
+
+Enable istio in microK8s:
+
+```sh
+microk8s.enable istio
+```
+
+Enable side-car injection on the namespace where helm chart will be deployed e.g. 'default'
+
+```sh
+microk8s.kubectl label namespace default istio-injection=enabled
+```
+
+Deploy helm chart
+
+```sh
+microk8s.helm3 install --debug hipstershop helm/
+```
+
+Check the release
+
+```sh
+microk8s.helm3 list
+NAME       	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART            	APP VERSION
+hipstershop	default  	1       	2020-07-15 19:25:45.695583276 +1200 NZST	deployed	hipstershop-0.1.0	1.16.0     
+```
+
+Check the deployment for Istio side-cars, each pod should have a READY column with '2/2'
+
+```sh
+microk8s.kubectl get po
+NAME                                     READY   STATUS    RESTARTS   AGE
+adservice-59bd9cb647-9z28b               2/2     Running   0          114s
+cartservice-6d4ccdfd5-qhbfl              2/2     Running   3          114s
+checkoutservice-56cd667bbb-fq4xt         2/2     Running   0          113s
+currencyservice-6cb45fbff5-l4xsj         2/2     Running   0          114s
+emailservice-75c874fb64-fxlzw            2/2     Running   0          114s
+frontend-5444bd96ff-6glnb                2/2     Running   1          114s
+loadgenerator-7cb5886b74-wj4hf           2/2     Running   4          113s
+paymentservice-6586f9667d-drq5n          2/2     Running   0          114s
+productcatalogservice-565d4975cd-8mkcl   2/2     Running   0          114s
+recommendationservice-596bbccd5d-cpjz4   2/2     Running   0          114s
+redis-cart-8465c75f49-kr76p              2/2     Running   0          113s
+shippingservice-6ccbc78688-mfz46         2/2     Running   0          114s
+```
+
+Check Istio proxy status
+
+```sh
+microk8s.istioctl ps
+NAME                                                   CDS        LDS        EDS        RDS          PILOT                            VERSION
+adservice-59bd9cb647-9z28b.default                     SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+cartservice-6d4ccdfd5-qhbfl.default                    SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+checkoutservice-56cd667bbb-fq4xt.default               SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+currencyservice-6cb45fbff5-l4xsj.default               SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+emailservice-75c874fb64-fxlzw.default                  SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+frontend-5444bd96ff-6glnb.default                      SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+istio-egressgateway-79b99bfc6b-lrj5d.istio-system      SYNCED     SYNCED     SYNCED     NOT SENT     istio-pilot-856b6b9b8f-p97pc     1.5.1
+istio-ingressgateway-696d6f46f5-48h4g.istio-system     SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+loadgenerator-7cb5886b74-wj4hf.default                 SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+paymentservice-6586f9667d-drq5n.default                SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+productcatalogservice-565d4975cd-8mkcl.default         SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+recommendationservice-596bbccd5d-cpjz4.default         SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+redis-cart-8465c75f49-kr76p.default                    SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+shippingservice-6ccbc78688-mfz46.default               SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+```
+
+## Access the Hipster Shop
+
+If your deploy went without error you should be able to run these commands and see the IP addressses of the services you deployed:
+
+for example
+
+```sh
+microk8s.kubectl get svc
+NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+adservice               ClusterIP      10.152.183.33    <none>        9555/TCP       4m
+cartservice             ClusterIP      10.152.183.34    <none>        7070/TCP       4m
+checkoutservice         ClusterIP      10.152.183.190   <none>        5050/TCP       4m
+currencyservice         ClusterIP      10.152.183.243   <none>        7000/TCP       4m
+emailservice            ClusterIP      10.152.183.76    <none>        5000/TCP       4m
+frontend                ClusterIP      10.152.183.39    <none>        80/TCP         4m
+frontend-external       LoadBalancer   10.152.183.140   <pending>     80:31446/TCP   4m
+kubernetes              ClusterIP      10.152.183.1     <none>        443/TCP        16d
+paymentservice          ClusterIP      10.152.183.137   <none>        50051/TCP      4m
+productcatalogservice   ClusterIP      10.152.183.27    <none>        3550/TCP       4m
+recommendationservice   ClusterIP      10.152.183.70    <none>        8080/TCP       4m
+redis-cart              ClusterIP      10.152.183.107   <none>        6379/TCP       4m
+shippingservice         ClusterIP      10.152.183.47    <none>        50051/TCP      4m
+```
+
+Open your browser to `http://10.152.183.39` (frontend) or `http://10.152.183.140` (frontend-external)
+
+## Patch frontend-external
 
 If you want to expose your shop deployment to your LAN (the network your PC is on) use the following command to patch the `frontend-external` service to your machines IP address
 
@@ -129,22 +229,6 @@ shippingservice         ClusterIP      10.152.183.46    <none>         50051/TCP
 ```
 
 Now, open `http://192.168.1.11:30829` and you will see the hipster shop.
-
-### Usage
-
-Commands to interact with your cluster:
-
-```sh
-microk8s.kubectl get pods,svc
-microk8s.kubectl describe pods <pod-name>
-microk8s.kubectl logs <pod-name>
-```
-
-When you make changes to the the chart and need to re-deploy it
-
-```sh
-microk8s.helm3 upgrade --install --debug hipstershop helm/
-```
 
 ### StackDriver errors
 
