@@ -75,6 +75,14 @@ Now, deploy it
 microk8s.helm3 install --debug hipstershop helm/
 ```
 
+Check the release
+
+```sh
+microk8s.helm3 list
+NAME       	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART            	APP VERSION
+hipstershop	default  	1       	2020-07-15 19:25:45.695583276 +1200 NZST	deployed	hipstershop-0.1.0	1.16.0     
+```
+
 ### Istio-enabled
 
 Enable istio in microK8s:
@@ -93,6 +101,54 @@ Deploy helm chart
 
 ```sh
 microk8s.helm3 install --debug hipstershop helm/
+```
+
+Check the release
+
+```sh
+microk8s.helm3 list
+NAME       	NAMESPACE	REVISION	UPDATED                                 	STATUS  	CHART            	APP VERSION
+hipstershop	default  	1       	2020-07-15 19:25:45.695583276 +1200 NZST	deployed	hipstershop-0.1.0	1.16.0     
+```
+
+Check the deployment for Istio side-cars, each pod should have a READY column with '2/2'
+
+```sh
+microk8s.kubectl get po
+NAME                                     READY   STATUS    RESTARTS   AGE
+adservice-59bd9cb647-9z28b               2/2     Running   0          114s
+cartservice-6d4ccdfd5-qhbfl              2/2     Running   3          114s
+checkoutservice-56cd667bbb-fq4xt         2/2     Running   0          113s
+currencyservice-6cb45fbff5-l4xsj         2/2     Running   0          114s
+emailservice-75c874fb64-fxlzw            2/2     Running   0          114s
+frontend-5444bd96ff-6glnb                2/2     Running   1          114s
+loadgenerator-7cb5886b74-wj4hf           2/2     Running   4          113s
+paymentservice-6586f9667d-drq5n          2/2     Running   0          114s
+productcatalogservice-565d4975cd-8mkcl   2/2     Running   0          114s
+recommendationservice-596bbccd5d-cpjz4   2/2     Running   0          114s
+redis-cart-8465c75f49-kr76p              2/2     Running   0          113s
+shippingservice-6ccbc78688-mfz46         2/2     Running   0          114s
+```
+
+Check Istio proxy status
+
+```sh
+microk8s.istioctl ps
+NAME                                                   CDS        LDS        EDS        RDS          PILOT                            VERSION
+adservice-59bd9cb647-9z28b.default                     SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+cartservice-6d4ccdfd5-qhbfl.default                    SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+checkoutservice-56cd667bbb-fq4xt.default               SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+currencyservice-6cb45fbff5-l4xsj.default               SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+emailservice-75c874fb64-fxlzw.default                  SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+frontend-5444bd96ff-6glnb.default                      SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+istio-egressgateway-79b99bfc6b-lrj5d.istio-system      SYNCED     SYNCED     SYNCED     NOT SENT     istio-pilot-856b6b9b8f-p97pc     1.5.1
+istio-ingressgateway-696d6f46f5-48h4g.istio-system     SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+loadgenerator-7cb5886b74-wj4hf.default                 SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+paymentservice-6586f9667d-drq5n.default                SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+productcatalogservice-565d4975cd-8mkcl.default         SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+recommendationservice-596bbccd5d-cpjz4.default         SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+redis-cart-8465c75f49-kr76p.default                    SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
+shippingservice-6ccbc78688-mfz46.default               SYNCED     SYNCED     SYNCED     SYNCED       istio-pilot-856b6b9b8f-p97pc     1.5.1
 ```
 
 ## Access the Hipster Shop
