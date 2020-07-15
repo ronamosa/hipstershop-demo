@@ -22,9 +22,9 @@
 * [About the Project](#about-the-project)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-  * [Usage](#usage)
-  * [Un-Installation](#un-installation)
+* [Installation](#installation)
+  * [Istio-enabled](#Istio-enabled)
+* [Un-Install](#un-installation)
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
@@ -38,7 +38,7 @@ Get yourself a copy of the repo: [git@github.com:ronamosa/hipstershop-demo.git](
 
 ### Prerequisites
 
-#### local setup: microK8s
+#### Local setup: microK8s
 
 Ubuntu:
 
@@ -47,24 +47,26 @@ sudo snap install microk8s --classic
 microk8s.status
 ```
 
-enable services: helm3, istio service mesh, k8s dashboard
+enable helm version 3
 
 ```sh
-microk8s.enable helm3 istio dashboard
+microk8s.enable helm3
 ```
 
-#### remote setup: cloud
+#### Remote setup: cloud
 
 TBC
 
-### Installation
+## Installation
+
+### Non-Istio
 
 Do a dry-run first before you deploy to make sure the charts are happy.
 
 The cli convention here is: `helm-command 'install|upgrade --install' '--debug --dry-run' <helm release name> <chart-folder>`
 
 ```sh
-microk8s.helm3 install --debug --dryrun hipstershop helm/
+microk8s.helm3 install --debug --dry-run hipstershop helm/
 ```
 
 Now, deploy it
@@ -73,11 +75,53 @@ Now, deploy it
 microk8s.helm3 install --debug hipstershop helm/
 ```
 
-Secondly you can make the hipster store accessible from your LAN using your local machines LAN IP.
+### Istio-enabled
 
-To do this you need to patch the LoadBalancer service `frontend-external`
+Enable istio in microK8s:
 
-### patch 'frontend-external'
+```sh
+microk8s.enable istio
+```
+
+Enable side-car injection on the namespace where helm chart will be deployed e.g. 'default'
+
+```sh
+microk8s.kubectl label namespace default istio-injection=enabled
+```
+
+Deploy helm chart
+
+```sh
+microk8s.helm3 install --debug hipstershop helm/
+```
+
+## Access the Hipster Shop
+
+If your deploy went without error you should be able to run these commands and see the IP addressses of the services you deployed:
+
+for example
+
+```sh
+microk8s.kubectl get svc
+NAME                    TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+adservice               ClusterIP      10.152.183.33    <none>        9555/TCP       4m
+cartservice             ClusterIP      10.152.183.34    <none>        7070/TCP       4m
+checkoutservice         ClusterIP      10.152.183.190   <none>        5050/TCP       4m
+currencyservice         ClusterIP      10.152.183.243   <none>        7000/TCP       4m
+emailservice            ClusterIP      10.152.183.76    <none>        5000/TCP       4m
+frontend                ClusterIP      10.152.183.39    <none>        80/TCP         4m
+frontend-external       LoadBalancer   10.152.183.140   <pending>     80:31446/TCP   4m
+kubernetes              ClusterIP      10.152.183.1     <none>        443/TCP        16d
+paymentservice          ClusterIP      10.152.183.137   <none>        50051/TCP      4m
+productcatalogservice   ClusterIP      10.152.183.27    <none>        3550/TCP       4m
+recommendationservice   ClusterIP      10.152.183.70    <none>        8080/TCP       4m
+redis-cart              ClusterIP      10.152.183.107   <none>        6379/TCP       4m
+shippingservice         ClusterIP      10.152.183.47    <none>        50051/TCP      4m
+```
+
+Open your browser to `http://10.152.183.39` (frontend) or `http://10.152.183.140` (frontend-external)
+
+## Patch frontend-external
 
 If you want to expose your shop deployment to your LAN (the network your PC is on) use the following command to patch the `frontend-external` service to your machines IP address
 
@@ -129,22 +173,6 @@ shippingservice         ClusterIP      10.152.183.46    <none>         50051/TCP
 ```
 
 Now, open `http://192.168.1.11:30829` and you will see the hipster shop.
-
-### Usage
-
-Commands to interact with your cluster:
-
-```sh
-microk8s.kubectl get pods,svc
-microk8s.kubectl describe pods <pod-name>
-microk8s.kubectl logs <pod-name>
-```
-
-When you make changes to the the chart and need to re-deploy it
-
-```sh
-microk8s.helm3 upgrade --install --debug hipstershop helm/
-```
 
 ### StackDriver errors
 
