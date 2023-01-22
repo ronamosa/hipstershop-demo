@@ -258,7 +258,7 @@ microk8s.helm3 delete hipstershop
 
 ## Contact
 
-Ron Amosa - [@iamronamosa](https://twitter.com/iamronamosa) - ron@cloudbuilder.io
+Ron Amosa (ron@cloudbuilder.io)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
